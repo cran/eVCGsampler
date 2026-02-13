@@ -12,7 +12,7 @@ energy_distance(formula, data, standardized = TRUE)
 \item{data}{A data frame containing the variables specified in the formula.}
 
 \item{standardized}{If TRUE, the standardized energy distance that lies in the range 0 to 1 is returned, the so-called E-coefficient.
-If FALSE, not scaled energy distance is returned that can be >1.}
+If FALSE, non-scaled energy distance is returned that can be >1.}
 }
 \value{
 A numeric value representing the energy distance between the two groups.

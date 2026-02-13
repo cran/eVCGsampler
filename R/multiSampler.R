@@ -1,6 +1,6 @@
 #' @title Multi-Sample VCG Generator and Overlap Visualization
 #' @description
-#' Repeatedly samples VCGs (via `VCG_sampler` and `random=TRUE`) from the pool,
+#' Repeatedly samples VCGs (via `VCG_sampler` with `random=TRUE`) from the pool,
 #' optionally plots the overlap of VCGs.
 #' @param formula A formula specifying the treated and covariates, e.g., `treated ~ cov1 + cov2`. The treated variable must be binary (0=pool, 1=treated)
 #' @param data A data frame containing the variables specified in the formula.
@@ -18,9 +18,9 @@
 #' If `plot = FALSE`, returns the modified data frame only.
 #' @details
 #' The function repeatedly calls `VCG_sampler` with `random` set to TRUE
-#' to generate multiple VCG groups. It calculates the frequency of selection for each observation
+#' to generate multiple VCGs. It calculates the frequency of selection for each observation
 #' and computes the average percentage of overlapping observations.
-#' This function should only be used if you really need multiple VCG, e.g. for PoC studies.
+#' This function should only be used if you really need multiple VCGs, e.g. for PoC studies.
 #' It is not intended for selecting one VCG from them afterwards!
 #' In this case, the VCG_sampler function should be used directly and only one VCG should be generated.
 #'

@@ -3,7 +3,7 @@
 #' @param formula A formula specifying the treated and covariates, e.g., `treated ~ cov1 + cov2`. The treated variable must be binary (0=pool, 1=treated)
 #' @param data A data frame containing the variables specified in the formula.
 #' @param standardized If TRUE, the standardized energy distance that lies in the range 0 to 1 is returned, the so-called E-coefficient.
-#' If FALSE, not scaled energy distance is returned that can be >1.
+#' If FALSE, non-scaled energy distance is returned that can be >1.
 #' @return A numeric value representing the energy distance between the two groups.
 #' @details Energy distance is a non-parametric measure of distributional difference. It is sensitive to differences
 #' in location, scale, and shape between groups. Before calculation, the covariates are scaled to a mean value of 0 and a standard deviation of 1.
@@ -19,6 +19,7 @@
 #'
 #' @rdname energy_distance
 #' @export
+
 
 
 
