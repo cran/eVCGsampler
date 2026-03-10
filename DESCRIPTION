@@ -1,7 +1,7 @@
 Package: eVCGsampler
 Type: Package
 Title: VCG Sampling using Energy-Based Covariate Balancing
-Version: 0.9.5
+Version: 1.0.0
 Authors@R: c(
     person(
       "Andreas", "Schulz",
@@ -17,13 +17,13 @@ URL: https://github.com/Sanofi-Public/eVCGsampler
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 Depends: ggplot2
-Imports: ggforce, osqp, patchwork
+Imports: ggforce, osqp, patchwork, shiny
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2026-02-13 07:23:24 UTC; I0559285
+Packaged: 2026-03-10 10:18:57 UTC; I0559285
 Author: Andreas Schulz [aut, cre] (Created in 2025),
   Sanofi [cph, fnd]
 Maintainer: Andreas Schulz <andreas.schulz2@sanofi.com>
 Repository: CRAN
-Date/Publication: 2026-02-13 12:10:02 UTC
+Date/Publication: 2026-03-10 10:50:02 UTC
