@@ -42,7 +42,7 @@ pretest_server <- function(
             setProgress(0.25)
 
             if (length(strat) > 0) {
-                # With strata energy_test() returns a character matrix and
+                # With strata energy_test() returns a per-stratum table and
                 # cannot draw the permutation histogram.
                 tab <- tryCatch(
                     eVCGsampler::energy_test(f_full, data = ad, alpha = alpha,

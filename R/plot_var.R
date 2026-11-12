@@ -71,7 +71,8 @@ plot_var <- function(data, what=NULL, stratum='in_stratum', group='VCG', title='
       if(nchar(title)==0) title_text <- what
 
 
-      data$left_p <- data[, grep("_balanced", names(data), value = TRUE)]
+      # The group column VCG_sampler() appends last; a covariate may also end in "_balanced"
+      data$left_p <- data[, rev(grep("_balanced$", names(data), value = TRUE))[1]]
       data$plot_x <- as.numeric(data[, what])
       data_tg   <- data[which(is.na(data$VCG) & !is.na(data$plot_x) & !is.na(data$left_p)), ]
       data_vcg  <- data[which(data$VCG==1), ]

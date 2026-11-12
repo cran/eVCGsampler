@@ -28,8 +28,10 @@ robust_scale <- function(x, group = NULL) {
   #if (!is.numeric(x)) stop("Input must be numeric.")
   if (is.matrix(x) || is.data.frame(x)) {
     x <- as.data.frame(x)
+    for(v in names(x)) check_categorical(x[[v]], v)
     return(as.data.frame(lapply(x, robust_scale, group)))
   }
+  check_categorical(x)
   nn <- length(unique(x[!is.na(x)]))
   if(is.null(group)){
     idx <- seq_along(x)
@@ -102,3 +104,11 @@ robust_scale <- function(x, group = NULL) {
 #   return(x)
 # }
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
+
+
+# Text / unordered factor covariates with more than 4 levels have no meaningful numeric scale
+check_categorical <- function(x, name = NULL) {
+  if((is.character(x) || (is.factor(x) && !is.ordered(x))) && length(unique(x[!is.na(x)])) > 4)
+    stop('Covariate ', if(!is.null(name)) paste0('"', name, '" ') else '', 'is categorical with more than 4 levels, which cannot be scaled. ',
+         'Recode it into dummy (0/1) variables, combine levels to at most 4, or use it as a stratum variable.', call. = FALSE)
+}

@@ -64,3 +64,18 @@ test_that("energy_test errors on interaction formula", {
   dat <- data.frame(treated = rep(0:1, 10), x = rnorm(20), y = rnorm(20))
   expect_error(energy_test(treated ~ x * y, data = dat, R = 10, plot = FALSE))
 })
+
+test_that("energy_test p-value is never exactly 0", {
+  set.seed(8)
+  dat <- data.frame(treated = rep(0:1, c(30, 30)), x = c(rnorm(30), rnorm(30, 3)))
+  res <- energy_test(treated ~ x, data = dat, R = 50, plot = FALSE)
+  expect_equal(res$p.value, 1 / 51)
+})
+
+test_that("energy_test with stratum returns numeric columns", {
+  set.seed(9)
+  dat <- data.frame(treated = rep(0:1, 30), x = rnorm(60), s = rep(c("a", "a", "b", "b"), 15))
+  res <- energy_test(treated ~ x | s, data = dat, R = 20, plot = FALSE)
+  expect_true(is.numeric(res[, "p-value"]))
+  expect_true(is.numeric(res$estimate))
+})

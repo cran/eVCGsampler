@@ -31,6 +31,7 @@ energy_distance <- function(formula, data, standardized=TRUE){
   fnames   <- all.vars(as.formula(formula))
   leftpart <- fnames[1]   # The response variable
   vars     <- fnames[-1]  # Exclude the response variable
+  if(length(vars)==0) stop('The formula needs at least one covariate on the right-hand side.')
 
       data <- data[,c(leftpart,vars)]
       if(any(is.na(data))) warning('NA values were removed from the data frame.')

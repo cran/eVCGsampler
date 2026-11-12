@@ -646,15 +646,15 @@ energy_test_table <- function(res, label = "") {
 #' The p-value of an energy_test() result, whatever shape it came in
 energy_test_p <- function(res) {
     if (is.null(res)) return(NA_real_)
-    if (is.matrix(res)) return(suppressWarnings(min(as.numeric(res[, "p-value"]), na.rm = TRUE)))
+    if (is.matrix(res) || is.data.frame(res)) return(suppressWarnings(min(as.numeric(res[, "p-value"]), na.rm = TRUE)))
     if (is.list(res) && !inherits(res, "htest") && inherits(res[[1]], "htest")) res <- res[[1]]
     if (inherits(res, "htest")) return(as.numeric(res$p.value))
     NA_real_
 }
 
-#' The stratum-wise energy_test() matrix as a tidy data.frame
+#' The stratum-wise energy_test() table as a tidy data.frame
 strat_test_table <- function(res) {
-    if (!is.matrix(res)) return(NULL)
+    if (!is.matrix(res) && !is.data.frame(res)) return(NULL)
     out <- as.data.frame(res, stringsAsFactors = FALSE)
     names(out) <- c("Stratum", "e_distance", "critical_value", "p_value")
     out

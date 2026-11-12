@@ -38,16 +38,15 @@ combine_data <- function(POOL_data, TG_data, indicator_name='treated'){
   pool_names <- colnames(POOL_data)
   tg_names   <- colnames(TG_data)
   overlapp   <- pool_names[which(pool_names%in%tg_names)]
-  POOL_data  <- POOL_data[, overlapp]
-  TG_data    <- TG_data[, overlapp]
+  POOL_data  <- POOL_data[, overlapp, drop = FALSE]
+  TG_data    <- TG_data[, overlapp, drop = FALSE]
 
   if(ncol(POOL_data)==0 | ncol(TG_data)==0) stop('No overlapping covariates were found. Covariates must have the same name in both data frames.')
 
-  eval(parse(text=paste0('POOL_data$', indicator_name, ' <- "POOL"')))
-  eval(parse(text=paste0('TG_data$',   indicator_name, ' <- "TG"')))
+  POOL_data[[indicator_name]] <- "POOL"
+  TG_data[[indicator_name]]   <- "TG"
   out <- rbind(POOL_data, TG_data)
-  eval(parse(text=paste0('out$',indicator_name, ' <- as.factor(out$',indicator_name, ')')))
-  eval(parse(text=paste0("levels(out$",indicator_name, ") <- list('POOL'='POOL', 'TG'='TG')")))
+  out[[indicator_name]] <- factor(out[[indicator_name]], levels = c('POOL', 'TG'))
   return(out)
 }
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#

@@ -50,6 +50,7 @@ multiSampler <- function(formula, data, n, c_w=NULL, Nsamples=20, plot=TRUE){
   fparts   <- all.names(as.formula(formula))
   leftpart <- fnames[1]   # The response variable
   vars     <- fnames[-1]  # Exclude the response variable
+  if(length(vars)==0) stop('The formula needs at least one covariate on the right-hand side.')
   data[, leftpart] <- as.factor(data[, leftpart])
   data <- data[which(!is.na(data[,leftpart])), ]
   lvls       <- levels(data[, leftpart])
@@ -57,14 +58,14 @@ multiSampler <- function(formula, data, n, c_w=NULL, Nsamples=20, plot=TRUE){
 
   if(any(fparts=='|')){
     stratum <- strsplit(as.character(as.formula(formula))[3], "\\|")[[1]]
-    stratum <- trimws(strsplit(stratum[2], "\\+")[[1]])
+    stratum <- gsub('`', '', trimws(strsplit(stratum[2], "\\+")[[1]]))
     if(length(stratum)>3) stop('max 3 stratum variables are allowed!')
     vars    <- vars[which(!vars%in%stratum)]
     data$in_stratum <- interaction(data[stratum])
     if(nlevels(data$in_stratum)>8) stop('Too many strata, a maximum of 8 are allowed!')
     if(length(n)!=nlevels(data$in_stratum)) n <- n[1]
     if(length(n)==1) n <- rep(n, nlevels(data$in_stratum))
-    new_formula <- as.formula(paste(leftpart, '~', paste(vars, collapse='+')))
+    new_formula <- make_formula(leftpart, vars)
     data_out <-  NULL
     p_all <- list()
 
@@ -88,7 +89,7 @@ multiSampler <- function(formula, data, n, c_w=NULL, Nsamples=20, plot=TRUE){
   for(i in 1:Nsamples){
     out   <- VCG_sampler(formula, data=data, n=n, c_w=c_w, random=TRUE, plot=FALSE)
     if(i==1) data_out <- out
-    eval(parse(text=paste0('data_out$VCG_', i, '<- out$VCG')))
+    data_out[[paste0('VCG_', i)]] <- out$VCG
   }
   data_out <- data_out[, which(!colnames(data_out)%in%c('VCG', 'e_weights', leftpart_b))]
   dat2 <- data_out[which(data_out[, leftpart]==lvls[1]), ]

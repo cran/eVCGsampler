@@ -129,6 +129,14 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
   fparts   <- all.names(as.formula(formula))
   leftpart <- fnames[1]   # The response variable
   vars     <- fnames[-1]  # Exclude the response variable
+  if(length(vars)==0) stop('The formula needs at least one covariate on the right-hand side.')
+
+  # Columns added by a previous VCG_sampler() run would clash with the new ones
+  old_cols <- setdiff(intersect(c('VCG', 'e_weights', paste0(leftpart, '_balanced')), names(data)), vars)
+  if(length(old_cols) > 0){
+    warning('The data already contain the column(s) ', paste(old_cols, collapse = ', '), ', e.g. from a previous VCG_sampler() run. They are replaced.')
+    data[old_cols] <- NULL
+  }
 
   # Sanity warnings on the requested balancing problem (top-level call only, so
   # they are not repeated by the internal per-stratum recursive calls)
@@ -151,7 +159,7 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
     strat_vars <- character(0)
     if(any(fparts=='|')){
       strat_vars <- strsplit(as.character(as.formula(formula))[3], "\\|")[[1]]
-      strat_vars <- trimws(strsplit(strat_vars[2], "\\+")[[1]])
+      strat_vars <- gsub('`', '', trimws(strsplit(strat_vars[2], "\\+")[[1]]))
     }
     n_cov <- length(setdiff(vars, strat_vars))
     # The pool is the first level of the group variable (0 for 0/1, "POOL" for combine_data())
@@ -176,7 +184,7 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
 
   if(any(fparts=='|')){
     stratum <- strsplit(as.character(as.formula(formula))[3], "\\|")[[1]]
-    stratum <- trimws(strsplit(stratum[2], "\\+")[[1]])
+    stratum <- gsub('`', '', trimws(strsplit(stratum[2], "\\+")[[1]]))
     if(length(stratum)>3) stop('max 3 stratum variables are allowed!')
     vars    <- vars[which(!vars%in%stratum)]
     data$in_stratum <- interaction(data[stratum])
@@ -184,7 +192,7 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
     data$.row_id <- seq_len(nrow(data))
     if(length(n)!=nlevels(data$in_stratum)) n <- n[1]
     if(length(n)==1) n <- rep(n, nlevels(data$in_stratum))
-    new_formula <- as.formula(paste(leftpart, '~', paste(vars, collapse='+')))
+    new_formula <- make_formula(leftpart, vars)
     data_out <-  NULL
 
     for(k in 1:nlevels(data$in_stratum)){
@@ -321,7 +329,7 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
     newrep <- ifelse(is.na(data$VCG), 1, 0)
     newrep[which(data$VCG==0)] <- NA
     newrep <- factor(newrep, labels=lvls)
-    eval(parse(text=paste0('data$', leftpart, '_balanced <- newrep')))
+    data[[paste0(leftpart, '_balanced')]] <- newrep
 
     # recover the initial data
     data_out <- merge(data_save, data[, c('VCG', 'e_weights', 'insideID', paste0(leftpart, '_balanced'))], by='insideID', all.x = TRUE)
@@ -396,3 +404,7 @@ VCG_sampler <- function(formula, data, n, c_w=NULL, random=FALSE, plot=TRUE){
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 
 
+# Build `lhs ~ rhs1 + rhs2` from variable names; backticks keep non-syntactic names (spaces, '-') working
+make_formula <- function(lhs, rhs) {
+  stats::reformulate(paste0('`', rhs, '`'), response = as.name(lhs))
+}

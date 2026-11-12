@@ -56,25 +56,26 @@ energy_test <- function(formula, data, alpha=0.05, R=2000, plot=TRUE){
   fparts   <- all.names(as.formula(formula))
   leftpart <- fnames[1]   # The response variable
   vars     <- fnames[-1]  # Exclude the response variable
+  if(length(vars)==0) stop('The formula needs at least one covariate on the right-hand side.')
 
   if(any(fparts=='|')){
     if(plot) warning('Plot is not supported with stratum.')
     stratum <- strsplit(as.character(as.formula(formula))[3], "\\|")[[1]]
-    stratum <- trimws(strsplit(stratum[2], "\\+")[[1]])
+    stratum <- gsub('`', '', trimws(strsplit(stratum[2], "\\+")[[1]]))
     if(length(stratum)>3) stop('max 3 stratum variables are allowed!')
     vars    <- vars[which(!vars%in%stratum)]
     data$in_stratum <- interaction(data[stratum])
     if(nlevels(data$in_stratum)>8) stop('Too many strata, a maximum of 8 are allowed!')
-    new_formula <- as.formula(paste(leftpart, '~', paste(vars, collapse='+')))
+    new_formula <- make_formula(leftpart, vars)
     tab <-  NULL
 
     for(k in 1:nlevels(data$in_stratum)){
       data_k <- data[which(data$in_stratum==levels(data$in_stratum)[k]), ]
       out    <- energy_test(new_formula, data=data_k, alpha=alpha, R=R, plot=FALSE)
-      tab  <- rbind(tab, c(levels(data$in_stratum)[k], out$estimate, out$critical.value[2], out$p.value))
+      tab  <- rbind(tab, data.frame(Stratum = levels(data$in_stratum)[k], estimate = unname(out$estimate),
+                                    critical.value = as.numeric(out$critical.value[2]), `p-value` = out$p.value,
+                                    check.names = FALSE))
     }
-
-    colnames(tab) <- c('Stratum', 'estimate', 'critical.value', 'p-value')
     return(tab)
   }else{
     data <- na.omit(data[, c(leftpart, vars)])
@@ -82,10 +83,11 @@ energy_test <- function(formula, data, alpha=0.05, R=2000, plot=TRUE){
     dists <- rep(NA, R)
     for(i in 1:R){
       data$per_group  <- sample(data[, leftpart], replace = FALSE)
-      dists[i]  <- energy_distance(as.formula(paste('per_group ~', paste(vars, collapse='+'))), data)
+      dists[i]  <- energy_distance(make_formula('per_group', vars), data)
     }
     range   <- quantile(dists, probs = 1-alpha, na.rm = TRUE)
-    p_value <- mean(dists >= obs_dists)
+    # +1: the observed split counts as one of the permutations, so p is never exactly 0
+    p_value <- (sum(dists >= obs_dists, na.rm = TRUE) + 1) / (sum(!is.na(dists)) + 1)
 
     result <- list(
       p.value = p_value,

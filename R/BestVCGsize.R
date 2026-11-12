@@ -62,17 +62,18 @@ BestVCGsize <- function(formula, data=data, plot=TRUE){
   fparts   <- all.names(as.formula(formula))
   leftpart <- fnames[1]   # The response variable
   vars     <- fnames[-1]  # Exclude the response variable
+  if(length(vars)==0) stop('The formula needs at least one covariate on the right-hand side.')
   leftpart_b <- paste0(leftpart, '_balanced')
 
   if(any(fparts=='|')){
     stratum <- strsplit(as.character(as.formula(formula))[3], "\\|")[[1]]
-    stratum <- trimws(strsplit(stratum[2], "\\+")[[1]])
+    stratum <- gsub('`', '', trimws(strsplit(stratum[2], "\\+")[[1]]))
     if(length(stratum)>3) stop('max 3 stratum variables are allowed!')
     vars    <- vars[which(!vars%in%stratum)]
     data$in_stratum <- interaction(data[stratum])
     if(nlevels(data$in_stratum)>8) stop('Too many strata, a maximum of 8 are allowed!')
-    new_formula <- as.formula(paste(leftpart, '~', paste(vars, collapse='+')))
-    f2  <- as.formula(paste0(leftpart, '_balanced ~', paste(vars, collapse='+')))
+    new_formula <- make_formula(leftpart, vars)
+    f2  <- make_formula(leftpart_b, vars)
     tab <- dall <- NULL
     cuts <- rep(NA, nlevels(data$in_stratum))
     mnn <- 0
@@ -121,7 +122,7 @@ BestVCGsize <- function(formula, data=data, plot=TRUE){
 
   }else{
 
-    f2       <- as.formula(paste0(leftpart_b, '~', paste(vars, collapse='+')))
+    f2       <- make_formula(leftpart_b, vars)
     data     <- na.omit(data[, c(leftpart, vars)])
     maxN     <- unname(table(data[,leftpart])[1])
     if(is.na(maxN) || maxN < 1) stop('No complete POOL observations found.')

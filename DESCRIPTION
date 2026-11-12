@@ -1,7 +1,7 @@
 Package: eVCGsampler
 Type: Package
 Title: VCG Sampling using Energy-Based Covariate Balancing
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: c(
     person(
       "Andreas", "Schulz",
@@ -22,9 +22,9 @@ Suggests: bslib, DT, glue, knitr, openxlsx, readxl, rmarkdown,
         shinycssloaders, shinyhelper, shinyjs, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2026-10-15 11:54:57 UTC; I0559285
+Packaged: 2026-11-12 14:48:27 UTC; I0559285
 Author: Andreas Schulz [aut, cre] (Created in 2025),
   Sanofi [cph, fnd]
 Maintainer: Andreas Schulz <andreas.schulz2@sanofi.com>
 Repository: CRAN
-Date/Publication: 2026-10-15 16:00:07 UTC
+Date/Publication: 2026-11-12 15:10:02 UTC

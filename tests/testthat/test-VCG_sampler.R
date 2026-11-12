@@ -123,3 +123,30 @@ test_that("VCG_sampler with stratum keeps the input row order and rows with miss
   expect_true(all(is.na(res$VCG[1:3])))
   expect_equal(sum(res$VCG == 1, na.rm = TRUE), 16)
 })
+
+test_that("VCG_sampler works with non-syntactic group, covariate and stratum names", {
+  set.seed(6)
+  dat <- data.frame(rep(0:1, c(40, 15)), rnorm(55), rep(c("m", "f"), length.out = 55))
+  names(dat) <- c("trt grp", "body weight", "sex-x")
+  res <- VCG_sampler(`trt grp` ~ `body weight` | `sex-x`, data = dat, n = 5, plot = FALSE)
+  expect_true("trt grp_balanced" %in% names(res))
+  expect_equal(sum(res$VCG == 1, na.rm = TRUE), 10)
+})
+
+test_that("VCG_sampler replaces columns from a previous run with a warning", {
+  set.seed(7)
+  dat <- data.frame(treated = rep(0:1, c(40, 15)), age = rnorm(55))
+  res1 <- VCG_sampler(treated ~ age, data = dat, n = 10, plot = FALSE)
+  expect_warning(res2 <- VCG_sampler(treated ~ age, data = res1, n = 10, plot = FALSE), "already contain")
+  expect_false(any(c("VCG.x", "VCG.y") %in% names(res2)))
+})
+
+test_that("VCG_sampler stops for categorical covariates with more than 4 levels", {
+  dat <- data.frame(treated = rep(0:1, c(40, 15)), age = rnorm(55), strain = rep(letters[1:6], length.out = 55))
+  expect_error(VCG_sampler(treated ~ age + strain, data = dat, n = 10, plot = FALSE), "strain")
+})
+
+test_that("VCG_sampler stops when the formula has no covariates", {
+  dat <- data.frame(treated = rep(0:1, c(40, 15)), age = rnorm(55))
+  expect_error(VCG_sampler(treated ~ 1, data = dat, n = 10, plot = FALSE), "at least one covariate")
+})

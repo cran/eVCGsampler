@@ -45,3 +45,9 @@ test_that("combine_data errors when no overlapping columns exist", {
   tg   <- data.frame(cov2 = rnorm(10))
   expect_error(combine_data(pool, tg))
 })
+
+test_that("combine_data accepts a non-syntactic indicator name", {
+  out <- combine_data(data.frame(a = 1:5), data.frame(a = 1:3), indicator_name = "my group")
+  expect_equal(levels(out[["my group"]]), c("POOL", "TG"))
+  expect_equal(nrow(out), 8)
+})

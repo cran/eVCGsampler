@@ -39,3 +39,10 @@ test_that("plot_var works with a single, character stratum", {
   res$sex_chr <- as.character(res$sex)
   expect_s3_class(plot_var(res, what = "cov1", stratum = "sex_chr"), "ggplot")
 })
+
+test_that("plot_var works when a covariate name ends in _balanced", {
+  set.seed(10)
+  dat <- data.frame(treated = rep(0:1, c(40, 15)), x_balanced = rnorm(55), age = rnorm(55))
+  res <- VCG_sampler(treated ~ x_balanced + age, data = dat, n = 10, plot = FALSE)
+  expect_s3_class(plot_var(res, what = "age"), "ggplot")
+})
